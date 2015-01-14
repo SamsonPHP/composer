@@ -20,7 +20,7 @@ To work with this module you should get composer instance:
 $composer = new \samsonos\composer\Composer();
 ``` 
     
-To configure module there are methods:
+Use following methods to configure module:
   * ```addVendor($vendor)``` - Add available vendor (```$vendor``` is the available vendor)
   * ```setIgnoreKey($ignoreKey)``` - Set name of composer extra parameter to ignore package (```$ignoreKey``` is name). Composer usage example:```"extra": { "samson_module_ignore": "1" }``` (```$composer->setIgnoreKey('samson_module_ignore')```)  
   * ```setIncludeKey($includeKey)``` - Set name of composer extra parameter to include package (```$includeKey``` is name). Composer usage example:```"extra": { "samson_module_include": "1" }``` (```$composer->setIncludeKey('samson_module_include')```)
