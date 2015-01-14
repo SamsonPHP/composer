@@ -43,7 +43,7 @@ class Composer
      * @param $vendor Available vendor
      * @return $this
      */
-    public function addVendor($vendor)
+    public function vendor($vendor)
     {
         if (!in_array($vendor, $this->vendorsList)) {
             $this->vendorsList[] = $vendor.'/';
@@ -57,7 +57,7 @@ class Composer
      * @param $ignoreKey Name
      * @return $this
      */
-    public function setIgnoreKey($ignoreKey)
+    public function ignoreKey($ignoreKey)
     {
         $this->ignoreKey = $ignoreKey;
         return $this;
@@ -68,7 +68,7 @@ class Composer
      * @param $includeKey Name
      * @return $this
      */
-    public function setIncludeKey($includeKey)
+    public function includeKey($includeKey)
     {
         $this->includeKey = $includeKey;
         return $this;
@@ -79,7 +79,7 @@ class Composer
      * @param $vendor Ignored package
      * @return $this
      */
-    public function addIgnorePackage($package)
+    public function ignorePackage($package)
     {
         if (!in_array($package, $this->ignorePackages)) {
             $this->ignorePackages[] = $package;
@@ -91,7 +91,7 @@ class Composer
      * Create sorted packages list
      * @return array Packages list ('package name'=>'rating')
      */
-    public function create( $systemPath, $lockFileName = 'composer.lock')
+    public function create( & $packages, $systemPath, $lockFileName = 'composer.lock')
     {
         // Composer.lock is always in the project root folder
         $path = $systemPath.$lockFileName;
@@ -107,7 +107,7 @@ class Composer
         // Sort packages rated
         arsort($this->packageRating);
 
-        return $this->packageRating;
+		$packages = $this->packageRating;
     }
 
     /**
@@ -224,4 +224,17 @@ class Composer
         }
         return $packages;
     }
+
+	/**
+	 * Clear object parameters
+	 */
+	public function clear()
+	{
+		$this->vendorsList = array();
+		$this->ignoreKey = null;
+		$this->includeKey = null;
+		$this->ignorePackages = array();
+		$this->packageRating = array();
+		$this->packagesList = array();
+	}
 }

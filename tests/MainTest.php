@@ -183,42 +183,46 @@ class MainTest extends \PHPUnit_Framework_TestCase
 	/** Tests init */
 	public function setUp()
 	{
-		$this->composer = new \samsonos\composer\Composer('tests/', 'composer.test');
+		$this->composer = new \samsonphp\composer\Composer();
+		$this->composer->clear();
 	}
 
 	public function testCreate()
 	{
 		$this->composer->vendor('samsonos')->ignoreKey('samson_module_ignore')->ignorePackage('samsonos/php_core');
-		$composerModules = $this->composer->create();
-
+		$composerModules = array();
+		$this->composer->create($composerModules, 'tests/', 'composer.test');
 		$this->assertEquals($composerModules, $this->createExample);
 	}
 
 	public function testEmpty()
 	{
 		$this->composer->vendor('samsonostest');
-		$composerModules = $this->composer->create();
+		$composerModules = array();
+		$this->composer->create($composerModules, 'tests/', 'composer.test');
 		$modulesExample = array();
 		$this->assertEquals($composerModules, $modulesExample);
 	}
 	public function testNoFile()
 	{
-		$composer = new \samsonos\composer\Composer('tests/', 'composer.lock');
-		$composer->vendor('samsonos')->ignoreKey('samson_module_ignore')->ignorePackage('samsonos/php_core');
-		$composerModules = $composer->create();
+		$this->composer->vendor('samsonos')->ignoreKey('samson_module_ignore')->ignorePackage('samsonos/php_core');
+		$composerModules = array();
+		$this->composer->create($composerModules, 'tests/', 'composer.lock');
 		$modulesExample = array();
 		$this->assertEquals($composerModules, $modulesExample);
 	}
 
 	public function testNoVendor()
 	{
-		$composerModules = $this->composer->create();
+		$composerModules = array();
+		$this->composer->create($composerModules, 'tests/', 'composer.test');
 		$this->assertEquals($composerModules, $this->noVendorExample);
 	}
 	public function testIncludeKey()
 	{
 		$this->composer->vendor('samsonos')->includeKey('samson_module_include')->ignorePackage('samsonos/php_core');
-		$composerModules = $this->composer->create();
+		$composerModules = array();
+		$this->composer->create($composerModules, 'tests/', 'composer.test');
 		$this->assertEquals($composerModules, $this->includeKeyExample);
 	}
 }
