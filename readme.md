@@ -4,7 +4,6 @@
 [![Build Status](https://travis-ci.org/SamsonPHP/composer.svg?branch=1.0.11)](https://travis-ci.org/SamsonPHP/composer)
 [![Code Coverage](https://scrutinizer-ci.com/g/samsonphp/composer/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/samsonphp/composer/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/samsonphp/composer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/samsonphp/composer/?branch=master)
-[![Code Climate](https://codeclimate.com/github/samsonphp/composer/badges/gpa.svg)](https://codeclimate.com/github/samsonos/composer)
 [![Stories in Ready](https://badge.waffle.io/samsonphp/composer.png?label=ready&title=Ready)](https://waffle.io/samsonphp/composer)
 [![Total Downloads](https://poser.pugx.org/samsonphp/composer/downloads.svg)](https://packagist.org/packages/samsonphp/composer)
 
