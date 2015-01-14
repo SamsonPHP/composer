@@ -1,5 +1,5 @@
 {
-    "name":"samsonos/php_composer",
+    "name":"samsonphp/composer",
     "description": "Create packages list",
     "keywords": [ "composer"],
     "authors":[
@@ -9,6 +9,7 @@
         }
     ],
     "require-dev": {
+        "samsonphp/event":"1.*",
         "satooshi/php-coveralls": "dev-master",
         "phpunit/phpunit": "4.*"
     },
@@ -17,8 +18,9 @@
     "autoload" : {
         "classmap": ["src/"],
         "psr-0": {
-            "samsonos\\composer\\": "src/"
-        }
+            "samsonphp\\composer\\": "src/"
+        },
+        "files" : ["src/samson.php"]
     },
     "extra": { "samson_module_ignore": "1" }
 }

@@ -5,7 +5,7 @@
  * Date: 26.11.2014
  * Time: 14:12
  */
-namespace samson\composer;
+namespace samsonphp\composer;
 
 
 /**
@@ -21,33 +21,22 @@ class Composer
     private $lockFileName = 'composer.lock';
 
     /** @var array List of available vendors */
-    private $vendorsList = array();
+    private $vendorsList = array('samsonphp', 'samsonos');
 
     /** @var string $ignoreKey */
-    private $ignoreKey;
+    private $ignoreKey = 'samson_module_ignore';
 
     /** @var string $includeKey */
     private $includeKey;
 
     /** @var array List of ignored packages */
-    private $ignorePackages = array();
+    private $ignorePackages = array('samsonos/php_core');
 
     /** @var array List of packages with its priority */
     private $packageRating = array();
 
     /** @var array  Packages list with require packages*/
     private $packagesList = array();
-
-    /**
-     * Module initialization
-     * @param $systemPath
-     * @param string|null $lockFileName
-     */
-    public function __construct($systemPath, $lockFileName = 'composer.lock')
-    {
-        $this->systemPath = $systemPath;
-        $this->lockFileName = $lockFileName;
-    }
 
     /**
      *  Add available vendor
@@ -102,10 +91,10 @@ class Composer
      * Create sorted packages list
      * @return array Packages list ('package name'=>'rating')
      */
-    public function create()
+    public function create( $systemPath, $lockFileName = 'composer.lock')
     {
         // Composer.lock is always in the project root folder
-        $path = $this->systemPath.$this->lockFileName;
+        $path = $systemPath.$lockFileName;
 
         // Create list of relevant packages with there require packages
         $this->packagesFill($this->readFile($path));
@@ -150,7 +139,7 @@ class Composer
         if (sizeof($this->vendorsList)) {
             if (!isset($this->includeKey) || !isset($package['extra'][$this->includeKey])) {
                 $packageName = $package['name'];
-			    $vendorName = substr($packageName, 0, strpos($packageName,"/"));
+			    $vendorName = substr($packageName, 0, strpos($packageName,"/")+1);
                 $include = in_array($vendorName, $this->vendorsList);
             }
         }
