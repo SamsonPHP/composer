@@ -4,3 +4,5 @@ cache/*
 cms/cache/*
 cms/upload/*
 vendor/
+composer.lock
+composer.phar

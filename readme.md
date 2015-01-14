@@ -1,16 +1,18 @@
 #[SamsonPHP](http://samsonphp.com/) - composer packages list generator
 
+[![Latest Stable Version](https://poser.pugx.org/samsonphp/composer/v/stable.svg)](https://packagist.org/packages/samsonphp/composer) 
+[![Build Status](https://travis-ci.org/SamsonPHP/composer.svg?branch=1.0.11)](https://travis-ci.org/SamsonPHP/composer)
+[![Code Coverage](https://scrutinizer-ci.com/g/samsonphp/composer/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/samsonphp/composer/?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/samsonphp/composer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/samsonphp/composer/?branch=master)
+[![Code Climate](https://codeclimate.com/github/samsonphp/composer/badges/gpa.svg)](https://codeclimate.com/github/samsonos/composer)
+[![Stories in Ready](https://badge.waffle.io/samsonphp/composer.png?label=ready&title=Ready)](https://waffle.io/samsonphp/composer)
+[![Total Downloads](https://poser.pugx.org/samsonphp/composer/downloads.svg)](https://packagist.org/packages/samsonphp/composer)
+
+
 Module creates an ordered list of projects composer packages sorted by priority.
 Priority is automatically determined by the dependencies between packages, this dependecies usually located at ```composer.json``` in project root folder. If a package ```package_A``` requires package ```package_B```, then package ```package_B``` priority is higher then package ```package_A``` priority. 
 
 This approach gives ability to build dependency tree from all composer loaded packages and represent it as a list. This is usefull when you tring to customly build package loading logic based on composer.
-
-[![Latest Stable Version](https://poser.pugx.org/samsonos/php_composer/v/stable.svg)](https://packagist.org/packages/samsonos/php_composer)
-[![Build Status](https://travis-ci.org/samsonos/php_composer.png)](https://travis-ci.org/samsonos/php_composer)
-[![Coverage Status](https://img.shields.io/coveralls/samsonos/php_composer.svg)](https://coveralls.io/r/samsonos/php_composer?branch=master)
-[![Code Climate](https://codeclimate.com/github/samsonos/php_composer/badges/gpa.svg)](https://codeclimate.com/github/samsonos/php_composer)
-[![Total Downloads](https://poser.pugx.org/samsonos/php_composer/downloads.svg)](https://packagist.org/packages/samsonos/php_composer)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/samsonos/php_composer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/samsonos/php_composer/?branch=master)
 
 ## Usage
 
