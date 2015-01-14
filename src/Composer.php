@@ -21,7 +21,7 @@ class Composer
     private $lockFileName = 'composer.lock';
 
     /** @var array List of available vendors */
-    private $vendorsList = array('samsonphp', 'samsonos');
+    private $vendorsList = array('samsonphp/', 'samsonos/');
 
     /** @var string $ignoreKey */
     private $ignoreKey = 'samson_module_ignore';
