@@ -16,7 +16,7 @@ This approach gives ability to build dependency tree from all composer loaded pa
 
 To work with this module you should get composer instance:
 ```php
-$composer = new \samson\composer\Composer($systemPath, $lockFileName);
+$composer = new \samsonos\composer\Composer($systemPath, $lockFileName);
 ```
   * ```$systemPath``` - Path to current web-application
   * ```$lockFileName``` - Composer lock file name (by default is set to ```'composer.lock'```)
@@ -30,13 +30,13 @@ To configure module there are methods:
 To create sorted list of project composer packages you can use method ```create()```.
 Example usage:
 ```php
-$composer = new \samson\composer\Composer($systemPath);
-$composer
+$composer = new \samsonos\composer\Composer($systemPath);
+$composerModules = $composer
     ->addVendor('samsonos')
     ->setIgnoreKey('samson_module_ignore')
     ->addIgnorePackage('samsonos/php_core')
-    ->addIgnorePackage('samsonos/php_event');
-$composerModules = $composer->create();
+    ->addIgnorePackage('samsonos/php_event') 
+    ->create();
 ```
 
 Developed by [SamsonOS](http://samsonos.com/)
