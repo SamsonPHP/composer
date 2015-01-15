@@ -1,7 +1,7 @@
 #[SamsonPHP](http://samsonphp.com/) - composer packages list generator
 
 [![Latest Stable Version](https://poser.pugx.org/samsonphp/composer/v/stable.svg)](https://packagist.org/packages/samsonphp/composer) 
-[![Build Status](https://travis-ci.org/SamsonPHP/composer.svg)](https://travis-ci.org/SamsonPHP/composer)
+[![Build Status](https://travis-ci.org/SamsonPHP/composer.svg?branch=master)](https://travis-ci.org/SamsonPHP/composer)
 [![Code Coverage](https://scrutinizer-ci.com/g/samsonphp/composer/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/samsonphp/composer/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/samsonphp/composer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/samsonphp/composer/?branch=master)
 [![Stories in Ready](https://badge.waffle.io/samsonphp/composer.png?label=ready&title=Ready)](https://waffle.io/samsonphp/composer)
