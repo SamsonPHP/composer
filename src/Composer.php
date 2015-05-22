@@ -27,16 +27,20 @@ class Composer
     private $ignoreKey = 'samson_module_ignore';
 
     /** @var string $includeKey */
-    private $includeKey;
+    private $includeKey = 'samson_module_include';
 
     /** @var array List of ignored packages */
     private $ignorePackages = array('samsonos/php_core');
 
     /** @var array List of packages with its priority */
-    private $packageRating = array();
+	private $packageRating = array();
 
     /** @var array  Packages list with require packages*/
     private $packagesList = array();
+
+	private $packagesListResorted = array();
+
+	private $packagesListExtra = array();
 
     /**
      *  Add available vendor
@@ -99,15 +103,33 @@ class Composer
         // Create list of relevant packages with there require packages
         $this->packagesFill($this->readFile($path));
 
+	    $topList = array();
+
         // Set packages rating
         foreach ($this->packagesList as $package => $list) {
-            $this->ratingCount($package, 1);
+	        if (sizeof($list) == 0) {
+		        $topList[$package]=300;
+	        }
+            $this->resort($package);
         }
 
-        // Sort packages rated
-        arsort($this->packageRating);
+	    foreach ($this->packagesList as $package => $list) {
+		    $this->ratingCount($package);
+	    }
+	    arsort($this->packageRating);
 
-		$packages = $this->packageRating;
+        // Sort packages rated
+	    foreach ($topList as $package => $rating) {
+		    unset($this->packageRating[$package]);
+	    }
+
+	    $this->packageRating = array_merge($topList, $this->packageRating);
+
+	    $packages = array();
+
+	    foreach ($this->packageRating as $package => $rating) {
+		    $packages[$package] = $this->packagesListExtra[$package];
+	    }
     }
 
     /**
@@ -163,28 +185,56 @@ class Composer
         return $isIgnore;
     }
 
-    /**
-     * Recursive function that provide package priority count
-     * @param $requirement Current package name
-     * @param int $current Current rating
-     * @param string $parent Parent package
-     */
-    private function ratingCount($requirement, $current = 1, $parent = '')
-    {
-        // Update package rating
-        $this->packageRating[$requirement] = (isset($this->packageRating[$requirement]))?($this->packageRating[$requirement] + $current):$current;
-        // Update package rating
-        $current = $this->packageRating[$requirement];
-        
-        // Iterate requires package
-        foreach ($this->packagesList[$requirement] as $subRequirement) {
-            // Check if two package require each other
-            if ($parent != $subRequirement) {
-                // Update package rating
-                $this->ratingCount($subRequirement, $current, $requirement);
-            }
-        }
-    }
+
+   	/**
+	 * Recursive function that provide package priority count
+	 * @param $requirement Current package name
+	 * @param int $current Current rating
+	 * @param string $parent Parent package
+	 */
+	private function resort($requirement, $parent = array())
+	{
+		// Check if two package require each other
+		if (!in_array($requirement, $parent) && (sizeof($this->packagesList[$requirement]))) {
+			$parent[]=$requirement;
+			// Iterate requires package
+			foreach ($this->packagesList[$requirement] as $subRequirement) {
+				if(!isset($this->packagesListResorted[$subRequirement])) $this->packagesListResorted[$subRequirement] = array();
+				$this->packagesListResorted[$subRequirement][$requirement] = $requirement;
+				if (isset($this->packagesListResorted[$requirement])) {
+					$this->packagesListResorted[$subRequirement] = array_merge($this->packagesListResorted[$subRequirement], $this->packagesListResorted[$requirement]);
+				}
+				// Update package rating
+				$this->resort($subRequirement,  $parent);
+			}
+		}
+	}
+
+	/**
+	 * Recursive function that provide package priority count
+	 * @param $requirement Current package name
+	 * @param int $current Current rating
+	 * @param string $parent Parent package
+	 */
+	private function ratingCount($package)
+	{
+		if (!isset($this->packageRating[$package])) {
+			$this->packageRating[$package] = 0;
+		}
+		if (isset($this->packagesListResorted[$package])&&is_array($this->packagesListResorted[$package])) {
+			foreach ( $this->packagesListResorted[ $package ] as $subPackage ) {
+				if ( ( $package != $subPackage ) && ( ! isset( $this->packageRating[ $subPackage ] ) ) ) {
+					$this->packageRating[ $subPackage ] = $this->packageRating[ $package ] - 1;
+					$this->ratingCount( $subPackage );
+				} else {
+					if(($this->packageRating[ $subPackage ]>=$this->packageRating[ $package ])&&( $package != $subPackage )){
+						$this->packageRating[ $package ] = $this->packageRating[ $package ] + 1;
+						$this->ratingCount( $package );
+					}
+				}
+			}
+		}
+	}
 
     /**
      * Fill list of relevant packages with there require packages
@@ -200,6 +250,7 @@ class Composer
             $requirement = $package['name'];
             if (in_array($requirement, $includePackages)) {
                 $this->packagesList[$requirement] = array();
+	            $this->packagesListExtra[$requirement] = isset($package['extra'])?$package['extra']:array();
                 if (isset($package['require'])) {
                     $this->packagesList[$requirement] = array_intersect(array_keys($package['require']), $includePackages);
                 }
