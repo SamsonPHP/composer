@@ -21,16 +21,16 @@ class Composer
     private $lockFileName = 'composer.lock';
 
     /** @var array List of available vendors */
-    private $vendorsList = array('samsonphp/', 'samsonos/', 'samsoncms/');
+    private $vendorsList = array();
 
     /** @var string $ignoreKey */
-    private $ignoreKey = 'samson_module_ignore';
+    private $ignoreKey;
 
     /** @var string $includeKey */
-    private $includeKey = 'samson_module_include';
+    private $includeKey;
 
     /** @var array List of ignored packages */
-    private $ignorePackages = array('samsonos/php_core');
+    private $ignorePackages = array();
 
     /** @var array List of packages with its priority */
 	private $packageRating = array();
@@ -95,10 +95,17 @@ class Composer
      * Create sorted packages list
      * @return array Packages list ('package name'=>'rating')
      */
-    public function create( & $packages, $systemPath, $lockFileName = 'composer.lock')
+    public function create( & $packages, $systemPath, $parameters = array() )
     {
+	    $class_vars = get_class_vars(get_class($this));
+
+	    foreach ($class_vars as $name => $value) {
+		    if (isset($parameters[$name])) {
+			    $this->$name = $parameters[$name];
+		    }
+	    }
         // Composer.lock is always in the project root folder
-        $path = $systemPath.$lockFileName;
+        $path = $systemPath.$this->lockFileName;
 
         // Create list of relevant packages with there require packages
         $this->packagesFill($this->readFile($path));
