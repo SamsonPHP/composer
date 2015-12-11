@@ -135,7 +135,10 @@ class Composer
 	    $packages = array();
 
 	    foreach ($this->packageRating as $package => $rating) {
+            $required = $this->getRequiredList($package);
 		    $packages[$package] = $this->packagesListExtra[$package];
+            $packages[$package]['required'] = $required;
+            $packages[$package]['composerName'] =$package;
 	    }
     }
 
@@ -281,6 +284,57 @@ class Composer
             );
         }
         return $packages;
+    }
+
+    /**
+     * Create list of of required packages
+     * @param null $includeModule Dependent package
+     * @param array $ignoreModules
+     *
+     * @return array required packages
+     */
+    private function getRequiredList($includeModule = null, $ignoreModules = array())
+    {
+        $list = isset($includeModule)?$this->packagesList[$includeModule]:$this->packagesList;
+        $ignoreList = array();
+        foreach ($ignoreModules as $module) {
+            $ignoreList[] = $module;
+            if (is_array($this->packagesList[$module])) {
+                $ignoreList = array_merge($ignoreList, $this->packagesList[$module]);
+            }
+        }
+
+        $result = array();
+        foreach ($list as $k=>$v) {
+            $module = is_array($v)?$k:$v;
+            if (!in_array($module, $ignoreList)) {
+                $result[] = $module;
+                $moduleList = $this->getReqList($this->packagesList[$module]);
+                $result = array_merge($result, $moduleList);
+            }
+        }
+        return array_values(array_unique($result));
+    }
+
+    /**
+     * Recursive function that get list of required packages
+     * @param $list List of packages
+     * @param array $result
+     *
+     * @return array required packages
+     */
+    private function getReqList($list, $result = array()) {
+        $return = array();
+        if (is_array($list)) {
+            foreach ($list as $module) {
+                if (!in_array($module, $result)) {
+                    $getList = $this->getReqList($this->packagesList[$module], $return);
+                    $return[] = $module;
+                    $return = array_merge($return, $getList);
+                }
+            }
+        }
+        return $return;
     }
 
 	/**
