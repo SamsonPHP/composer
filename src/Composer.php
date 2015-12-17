@@ -32,9 +32,6 @@ class Composer
     /** @var array List of ignored packages */
     private $ignorePackages = array();
 
-    /** @var array List of packages with its priority */
-	private $packageRating = array();
-
     /** @var array  Packages list with require packages*/
     private $packagesList = array();
 
@@ -110,37 +107,74 @@ class Composer
         // Create list of relevant packages with there require packages
         $this->packagesFill($this->readFile($path));
 
-	    $topList = array();
+        $resultList = $this->sort();
 
-        // Set packages rating
-        foreach ($this->packagesList as $package => $list) {
-	        if (sizeof($list) == 0) {
-		        $topList[$package]=300;
-	        }
-            $this->resort($package);
-        }
-
-	    foreach ($this->packagesList as $package => $list) {
-		    $this->ratingCount($package);
-	    }
-	    arsort($this->packageRating);
-
-        // Sort packages rated
-	    foreach ($topList as $package => $rating) {
-		    unset($this->packageRating[$package]);
-	    }
-
-	    $this->packageRating = array_merge($topList, $this->packageRating);
-
-	    $packages = array();
-
-	    foreach ($this->packageRating as $package => $rating) {
+	    foreach ($resultList as $package => $rating) {
             $required = $this->getRequiredList($package);
 		    $packages[$package] = $this->packagesListExtra[$package];
             $packages[$package]['required'] = $required;
             $packages[$package]['composerName'] =$package;
 	    }
     }
+
+    /**
+     * Provide creating sorting list
+     * @return array list of sorted packages
+     */
+    public function sort()
+    {
+        $list = array();
+        foreach ($this->packagesList as $package => $requiredList) {
+            if (!sizeof($list)||!isset($list[$package])) {
+                $list[$package] = 1;
+            }
+            foreach ($requiredList as $requiredPackage) {
+                if (isset($list[$requiredPackage])) {
+                   $packagePos =  array_search($package, array_keys($list));
+                    $requiredPackagePos = array_search($requiredPackage, array_keys($list));
+                    if ($packagePos < $requiredPackagePos) {
+                        unset($list[$requiredPackage]);
+                        $list = $this->arrayInsertBefore($list, $package, $requiredPackage);
+                    }
+                } else {
+                    $list = $this->arrayInsertBefore($list, $package, $requiredPackage);
+                }
+
+            }
+        }
+        //$this->checkSort($list);
+
+        return $list;
+    }
+
+    /**
+     *Check result of sorting
+     * @param $list final list of packages
+     *
+     * @return bool result
+     */
+    public function checkSort($list)
+    {
+        $status = true;
+        foreach ($this->packagesList as $package => $requiredList) {
+            foreach ($requiredList as $requiredPackage) {
+                if (isset($list[$requiredPackage])) {
+                    $packagePos =  array_search($package, array_keys($list));
+                    $requiredPackagePos = array_search($requiredPackage, array_keys($list));
+                    if ($packagePos < $requiredPackagePos) {
+                        trace('error pos - '.$packagePos.' < '.$requiredPackagePos);
+                        $status = false;
+                    }
+                } else {
+                    $status = false;
+                    trace('error not isset!!!!! - '.$requiredPackage);
+                }
+            }
+        }
+        return $status;
+    }
+
+
 
     /**
      * Create list of relevant packages
@@ -194,57 +228,6 @@ class Composer
         }
         return $isIgnore;
     }
-
-
-   	/**
-	 * Recursive function that provide package priority count
-	 * @param $requirement Current package name
-	 * @param int $current Current rating
-	 * @param string $parent Parent package
-	 */
-	private function resort($requirement, $parent = array())
-	{
-		// Check if two package require each other
-		if (!in_array($requirement, $parent) && (sizeof($this->packagesList[$requirement]))) {
-			$parent[]=$requirement;
-			// Iterate requires package
-			foreach ($this->packagesList[$requirement] as $subRequirement) {
-				if(!isset($this->packagesListResorted[$subRequirement])) $this->packagesListResorted[$subRequirement] = array();
-				$this->packagesListResorted[$subRequirement][$requirement] = $requirement;
-				if (isset($this->packagesListResorted[$requirement])) {
-					$this->packagesListResorted[$subRequirement] = array_merge($this->packagesListResorted[$subRequirement], $this->packagesListResorted[$requirement]);
-				}
-				// Update package rating
-				$this->resort($subRequirement,  $parent);
-			}
-		}
-	}
-
-	/**
-	 * Recursive function that provide package priority count
-	 * @param $requirement Current package name
-	 * @param int $current Current rating
-	 * @param string $parent Parent package
-	 */
-	private function ratingCount($package)
-	{
-		if (!isset($this->packageRating[$package])) {
-			$this->packageRating[$package] = 0;
-		}
-		if (isset($this->packagesListResorted[$package])&&is_array($this->packagesListResorted[$package])) {
-			foreach ( $this->packagesListResorted[ $package ] as $subPackage ) {
-				if ( ( $package != $subPackage ) && ( ! isset( $this->packageRating[ $subPackage ] ) ) ) {
-					$this->packageRating[ $subPackage ] = $this->packageRating[ $package ] - 1;
-					$this->ratingCount( $subPackage );
-				} else {
-					if(($this->packageRating[ $subPackage ]>=$this->packageRating[ $package ])&&( $package != $subPackage )){
-						$this->packageRating[ $package ] = $this->packageRating[ $package ] + 1;
-						$this->ratingCount( $package );
-					}
-				}
-			}
-		}
-	}
 
     /**
      * Fill list of relevant packages with there require packages
@@ -349,4 +332,38 @@ class Composer
 		$this->packageRating = array();
 		$this->packagesList = array();
 	}
+
+    /**
+     * Insert a key after a specific key in an array.  If key doesn't exist, value is appended
+     * to the end of the array.
+     *
+     * @param array $array
+     * @param string $key
+     * @param integer $newKey
+     *
+     * @return array
+     */
+    public function arrayInsertAfter( array $array, $key, $newKey ) {
+        $keys = array_keys( $array );
+        $index = array_search( $key, $keys );
+        $pos = false === $index ? count( $array ) : $index + 1;
+        return array_merge( array_slice( $array, 0, $pos ), array($newKey=>1), array_slice( $array, $pos ) );
+    }
+
+    /**
+     * Insert a key before a specific key in an array.  If key doesn't exist, value is prepended
+     * to the beginning of the array.
+     *
+     * @param array $array
+     * @param string $key
+     * @param integer $newKey
+     *
+     * @return array
+     */
+    public function arrayInsertBefore( array $array, $key, $newKey ) {
+        $keys = array_keys( $array );
+        $pos = (int) array_search( $key, $keys );
+        return array_merge( array_slice( $array, 0, $pos ), array($newKey=>1), array_slice( $array, $pos ) );
+    }
+
 }
