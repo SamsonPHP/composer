@@ -35,8 +35,6 @@ class Composer
     /** @var array  Packages list with require packages*/
     private $packagesList = array();
 
-	private $packagesListResorted = array();
-
 	private $packagesListExtra = array();
 
     /**
@@ -92,7 +90,7 @@ class Composer
      * Create sorted packages list
      * @return array Packages list ('package name'=>'rating')
      */
-    public function create( & $packages, $systemPath, $parameters = array() )
+    public function create(& $packages, $systemPath, $parameters = array())
     {
 	    $class_vars = get_class_vars(get_class($this));
 
@@ -130,14 +128,14 @@ class Composer
             }
             foreach ($requiredList as $requiredPackage) {
                 if (isset($list[$requiredPackage])) {
-                   $packagePos =  array_search($package, array_keys($list));
+                    $packagePos =  array_search($package, array_keys($list));
                     $requiredPackagePos = array_search($requiredPackage, array_keys($list));
                     if ($packagePos < $requiredPackagePos) {
                         unset($list[$requiredPackage]);
-                        $list = $this->arrayInsertBefore($list, $package, $requiredPackage);
+                        $list = $this->insertKeyBefore($list, $package, $requiredPackage);
                     }
                 } else {
-                    $list = $this->arrayInsertBefore($list, $package, $requiredPackage);
+                    $list = $this->insertKeyBefore($list, $package, $requiredPackage);
                 }
 
             }
@@ -329,7 +327,6 @@ class Composer
 		$this->ignoreKey = null;
 		$this->includeKey = null;
 		$this->ignorePackages = array();
-		$this->packageRating = array();
 		$this->packagesList = array();
 	}
 
@@ -343,11 +340,12 @@ class Composer
      *
      * @return array
      */
-    public function arrayInsertAfter( array $array, $key, $newKey ) {
-        $keys = array_keys( $array );
+    public function insertKeyAfter( array $list, $key, $newKey )
+    {
+        $keys = array_keys($list);
         $index = array_search( $key, $keys );
-        $pos = false === $index ? count( $array ) : $index + 1;
-        return array_merge( array_slice( $array, 0, $pos ), array($newKey=>1), array_slice( $array, $pos ) );
+        $pos = false === $index ? count($list) : $index + 1;
+        return array_merge(array_slice($list, 0, $pos), array($newKey=>1), array_slice($list, $pos));
     }
 
     /**
@@ -360,10 +358,11 @@ class Composer
      *
      * @return array
      */
-    public function arrayInsertBefore( array $array, $key, $newKey ) {
-        $keys = array_keys( $array );
-        $pos = (int) array_search( $key, $keys );
-        return array_merge( array_slice( $array, 0, $pos ), array($newKey=>1), array_slice( $array, $pos ) );
+    public function insertKeyBefore(array $list, $key, $newKey)
+    {
+        $keys = array_keys($list);
+        $pos = (int) array_search($key, $keys);
+        return array_merge(array_slice($list, 0, $pos), array($newKey=>1), array_slice($list, $pos));
     }
 
 }
