@@ -37,6 +37,8 @@ class Composer
 
 	private $packagesListExtra = array();
 
+    private $projectRequireDev = array();
+
     /**
      *  Add available vendor
      * @param $vendor Available vendor
@@ -99,11 +101,9 @@ class Composer
 			    $this->$name = $parameters[$name];
 		    }
 	    }
-        // Composer.lock is always in the project root folder
-        $path = $systemPath.$this->lockFileName;
 
         // Create list of relevant packages with there require packages
-        $this->packagesFill($this->readFile($path));
+        $this->packagesFill($this->readFile($systemPath));
 
         $resultList = $this->sort();
 
@@ -112,6 +112,8 @@ class Composer
 		    $packages[$package] = $this->packagesListExtra[$package];
             $packages[$package]['required'] = $required;
             $packages[$package]['composerName'] =$package;
+            $packages[$package]['projectRequireDev'] =
+                in_array($package, $this->projectRequireDev)?true:false;
 	    }
     }
 
@@ -249,9 +251,11 @@ class Composer
         }
     }
 
-    private function readFile($path)
+    private function readFile($systemPath)
     {
         $packages = array();
+        // Composer.lock is always in the project root folder
+        $path = $systemPath.$this->lockFileName;
         // If we have composer configuration file
         if (file_exists($path)) {
             // Read file into object
@@ -264,6 +268,13 @@ class Composer
                 isset($composerObject['packages-dev']) ? $composerObject['packages-dev'] : array()
             );
         }
+
+        $jsonPath = $systemPath.'composer.json';
+        if (file_exists($jsonPath)) {
+            $jsonObject = json_decode(file_get_contents($jsonPath), true);
+            $this->projectRequireDev = isset($jsonObject['require-dev'])?array_keys($jsonObject['require-dev']):array();
+        }
+
         return $packages;
     }
 
